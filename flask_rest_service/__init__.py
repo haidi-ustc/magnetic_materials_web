@@ -9,12 +9,16 @@ from bson.json_util import dumps
 
 MONGO_URL = os.environ.get('MONGO_URL')
 if not MONGO_URL:
-    MONGO_URL = "mongodb://localhost:27017/rest";
+    MONGO_URL = "mongodb://localhost:27017/restfulapi";
 
 app = Flask(__name__)
 
 app.config['MONGO_URI'] = MONGO_URL
 mongo = PyMongo(app)
+#print(mongo)
+#print(dir(mongo))
+print(mongo.db.items.find_one())
+#print(dir(mongo.db))
 
 def output_json(obj, code, headers=None):
     resp = make_response(dumps(obj), code)
