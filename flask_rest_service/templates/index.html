@@ -64,7 +64,7 @@ $(function() {
 {% for d in data %}
             <tr>
                 <td>{{ d.mmid }}</td>
-                <td>{{ d.formula }}</td>
+                <td>{{ d.formula | safe }}</td>
                 <td>{{ d.spacegroup }}</td>
                 <td>{{ d.formation_energy }}</td>
                 <td>{{ d.e_above_hull }}</td>
