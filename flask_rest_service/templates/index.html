@@ -40,12 +40,12 @@ $(function() {
 
 
 {% block content %}
-<img id="header-img" src="{{ url_for('static', filename='images/mm.jpg') }}"/>
+<img id="header-img" src="{{ url_for('static', filename='images/dnn.jpg') }}"/>
 <h1>Magnetic Materials</h1>
 
-<p class="help-p"> <b> Collaborative PI: </b>  James R. Chelikowsky  <a href=""> University of Texas at Austin </a> </p>
-<p class="help-p"> <b> Collaborative PI: </b>  Kai-Ming Ho and Cai-Zhuang Wang  <a href=""> Iowa State University </a> </p>
-<p class="help-p"> <b> Collaborative PI: </b>  David Sellmyer and XiaoShan Xu  <a href=""> University of Nebraska </a> </p>
+<p class="help-p"> <b> Collaborative PI: </b>  James R. Chelikowsky  <a href="https://www.utexas.edu/"> University of Texas at Austin </a> </p>
+<p class="help-p"> <b> Collaborative PI: </b>  Kai-Ming Ho and Cai-Zhuang Wang  <a href="https://www.iastate.edu/"> Iowa State University </a> </p>
+<p class="help-p"> <b> Collaborative PI: </b>  David Sellmyer and XiaoShan Xu  <a href="https://www.unl.edu/"> University of Nebraska </a> </p>
 <br>
 <p class="help-p"> <b> Structure Database </b>  </p>
 
@@ -63,7 +63,7 @@ $(function() {
  </tr>
 {% for d in data %}
             <tr>
-                <td>{{ d.mmid }}</td>
+                <td><a href="http://127.0.0.1:5000/info/{{d.mmid}}">{{ d.mmid }}</a></td>
                 <td>{{ d.formula | safe }}</td>
                 <td>{{ d.spacegroup }}</td>
                 <td>{{ d.formation_energy }}</td>
@@ -100,6 +100,5 @@ $(function() {
 
 {% endif %}
 
-<p> by  {{author.Author}} </p>
 
 {% endblock %}

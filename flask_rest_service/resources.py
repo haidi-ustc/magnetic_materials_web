@@ -1,4 +1,5 @@
 import json
+import pprint
 from flask import render_template, make_response, request, abort, Flask
 from flask_restful import Api, Resource, reqparse
 from flask_rest_service import app, api, mongo
@@ -12,6 +13,7 @@ from pymatgen.analysis.phase_diagram import *
 MAPI_KEY='QFrf8k3D4yalbmAK'
 
 mpr=MPRester(MAPI_KEY)
+
 def get_stability(comp,energy,mpara):
     compat=MaterialsProjectCompatibility()
     print(mpara)
@@ -44,42 +46,6 @@ def get_stability(comp,energy,mpara):
     #print(decomp)
     return pd.get_form_energy(my_en),mpr.get_stability([my_en])[0]
 
-class ReadingList(Resource):
-    def __init__(self, *args, **kwargs):
-        self.parser = reqparse.RequestParser()
-        self.parser.add_argument('reading', type=str)
-        super(ReadingList, self).__init__()
-
-    def get(self):
-        return  [x for x in mongo.db.items.find()]
-
-    def post(self):
-        args = self.parser.parse_args()
-        if not args['reading']:
-            abort(400)
-
-        jo = json.loads(args['reading'])
-        reading_id =  mongo.db.items.insert(jo)
-        return mongo.db.items.find_one({"_id": reading_id})
-
-
-class Reading(Resource):
-    def get(self, reading_id):
-        return mongo.db.items.find_one_or_404({"_id": reading_id})
-
-    def delete(self, reading_id):
-        mongo.db.items.find_one_or_404({"_id": reading_id})
-        mongo.db.items.remove({"_id": reading_id})
-        return '', 204
-
-
-class Root(Resource):
-    def get(self):
-        return {
-            'status': 'OK',
-            'mongo': str(mongo.db),
-        }
-
 
 def html_formula(f):
     return re.sub(r"([\d.]+)", r"<sub>\1</sub>", f)
@@ -95,6 +61,9 @@ def calculate_stability(entry):
     data = m.get_stability([entry])[0]
     for k in ("e_above_hull", "decomposes_to"):
         d["analysis"][k] = data[k]
+
+def find_entry(mm_id):
+    return mongo.db.data.find_one({'entry_id':mm_id})
 
 def thumbnails_information():
     fmt="%.3f"
@@ -133,13 +102,20 @@ def thumbnails_information():
         #st.density
         #st.volume
 
-@app.route('/index/',methods=['GET'])
+@app.route('/info/<mm_id>')
+def show_info(mm_id):
+    entry=find_entry(mm_id) 
+    out=str(pprint.pformat(entry, indent=4))
+    #print(entry)
+    return out
+
+@app.route('/',methods=['GET'])
 def index():
-    author_info={"Author":"haidi"}
+    #author_info={"Author":"haidi"}
     thumb_data=thumbnails_information()
     
-    return make_response(render_template('index.html',author=author_info,data=thumb_data))
+    return make_response(render_template('index.html',data=thumb_data))
 
-api.add_resource(Root, '/')
-api.add_resource(ReadingList, '/items/')
-api.add_resource(Reading, '/items/<ObjectId:reading_id>')
+#api.add_resource(Root, '/')
+#api.add_resource(ReadingList, '/items/')
+#api.add_resource(Reading, '/items/<ObjectId:reading_id>')
