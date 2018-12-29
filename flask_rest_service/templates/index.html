@@ -63,7 +63,7 @@ $(function() {
  </tr>
 {% for d in data %}
             <tr>
-                <td><a href="http://127.0.0.1:5000/info/{{d.mmid}}">{{ d.mmid }}</a></td>
+                <td><a href="https://magnetic-materials.herokuapp.com/info/{{d.mmid}}">{{ d.mmid }}</a></td>
                 <td>{{ d.formula | safe }}</td>
                 <td>{{ d.spacegroup }}</td>
                 <td>{{ d.formation_energy }}</td>
