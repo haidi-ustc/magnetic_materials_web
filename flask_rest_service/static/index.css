@@ -1,0 +1,51 @@
+#gConnect{
+    text-align: center;
+    font-size: 1.5em;
+}
+
+#navigation{
+    text-align: center;
+}
+
+#navigation p{
+    font-size: 1.5em;
+}
+
+#profile{
+    text-align: center;
+    font-size: 1.5em;   
+}
+
+input{
+	margin: auto;
+	font-size: 1.2em;
+}
+
+
+select{
+    width: 300px;
+}
+
+.query {
+	font-size: 1.3em;
+	text-align: center;
+}
+
+.help-p{
+	font-size: 0.8em;
+}
+
+ul {
+    font-size: 0.8em;
+}
+
+#header-img {
+    display: block;
+    margin: auto;
+    width: 60%
+}
+
+#results{
+    text-align: center;
+    font-size: 1.2em;
+}

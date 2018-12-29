@@ -1,0 +1,58 @@
+<html>
+<head>
+    <title>{% block title %}Garnet DNN{% endblock %}</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
+    <script>
+        $(document).ready(function () {
+
+            var sPath = window.location.pathname;
+            var sPage = sPath.substring(sPath.lastIndexOf('/') + 1);
+
+            if (sPage == "") {
+                $("#li-home").addClass("active");
+            }
+            else {
+                $("#li-" + sPage).addClass("active");
+            }
+
+        });
+
+
+    </script>
+    {% block top_javascript %}
+    {% endblock %}
+     <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/themes/smoothness/jquery-ui.css"/> -->
+<!--    <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet"> -->
+     <link rel=stylesheet type=text/css   href="{{ url_for('static', filename='style.css') }}"> 
+
+    {% block css %}
+    {% endblock %}
+
+</head>
+<body>
+
+
+<div id="content">
+    {% block content %}
+    {% endblock %}
+</div>
+
+<footer>
+  
+<hr>
+<div class="pad-top row text-center">
+	  <small>
+		    Powered by <a href="http://pymatgen.org">pymatgen</a>,
+      <a href="https://materialsproject.github.io/custodian">custodian</a>,
+      <a href="https://materialsproject.github.io/fireworks">fireworks</a>,
+      and <a href="https://hackingmaterials.github.io/atomate">atomate</a>.
+	</small>
+</div>
+
+</footer>
+  <!-- Manged at https://cdn.fontawesome.com by dwinston-->
+  <script src="https://use.fontawesome.com/fd3b9caec8.js"></script>
+
+</body>
+</html>
