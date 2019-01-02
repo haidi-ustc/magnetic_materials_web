@@ -6,19 +6,18 @@ from bson.json_util import dumps
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
-def mycopyfile(srcfile,dstfile):
     shutil.copyfile(srcfile,dstfile)    
 
-try:
-   from flask_cache import Cache
-except:
-   srcfile=os.path.join(basedir,"jinja2ext.py")
-   distfile="/app/.heroku/python/lib/python3.6/site-packages/flask_cache/jinja2ext.py"
-   #distfile="/home/vasp/.pyenv/versions/mpt_a3/lib/python3.6/site-packages/flask_cache/jinja2ext.py"
-   print(srcfile)
-   print(distfile)
-   mycopyfile(srcfile,distfile)
-   from flask_cache import Cache
+#try:
+#   from flask_cache import Cache
+#except:
+srcfile=os.path.join(basedir,"jinja2ext.py")
+distfile="/app/.heroku/python/lib/python3.6/site-packages/flask_cache/jinja2ext.py"
+#distfile="/home/vasp/.pyenv/versions/mpt_a3/lib/python3.6/site-packages/flask_cache/jinja2ext.py"
+print(srcfile)
+print(distfile)
+shutil.copyfile(srcfile,dstfile)    
+from flask_cache import Cache
 
 MONGO_URL = os.environ.get('MONGO_URL')
 if not MONGO_URL:
