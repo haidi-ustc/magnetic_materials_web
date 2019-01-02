@@ -6,7 +6,6 @@ from bson.json_util import dumps
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
-    shutil.copyfile(srcfile,dstfile)    
 
 #try:
 #   from flask_cache import Cache
