@@ -4,22 +4,21 @@ from flask_restful import Api
 from flask_pymongo import PyMongo
 from bson.json_util import dumps
 
+basedir = os.path.abspath(os.path.dirname(__file__))
+
 def mycopyfile(srcfile,dstfile):
-    if not os.path.isfile(srcfile):
-        print("%s not exist!"%(srcfile))
-    else:
-        fpath,fname=os.path.split(dstfile) 
-        if not os.path.exists(fpath):
-            os.makedirs(fpath)              
-        shutil.copyfile(srcfile,dstfile)    
+    shutil.copyfile(srcfile,dstfile)    
 
 try:
-  from flask_cache import Cache
+   from flask_cache import Cache
 except:
-  srcfile="jinja2ext.py"
-  distfile="/app/.heroku/python/lib/python3.6/site-packages/flask_cache/jinja2ext.py"
-  mycopyfile(srcfile,dstfile)
-  from flask_cache import Cache
+   srcfile=os.path.join(basedir,"jinja2ext.py")
+   distfile="/app/.heroku/python/lib/python3.6/site-packages/flask_cache/jinja2ext.py"
+   #distfile="/home/vasp/.pyenv/versions/mpt_a3/lib/python3.6/site-packages/flask_cache/jinja2ext.py"
+   print(srcfile)
+   print(distfile)
+   mycopyfile(srcfile,distfile)
+   from flask_cache import Cache
 
 MONGO_URL = os.environ.get('MONGO_URL')
 if not MONGO_URL:
@@ -29,7 +28,6 @@ if not MONGO_URL:
 UPLOAD_FOLDER='upload'
 CACHE_TYPE = 'simple'
 DATA_FOLDER = 'data'
-basedir = os.path.abspath(os.path.dirname(__file__))
 print(basedir)
 ALLOWED_EXTENSIONS = set(['json','yaml','vasp','cif','lammps'])
 
