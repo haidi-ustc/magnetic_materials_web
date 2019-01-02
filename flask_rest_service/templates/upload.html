@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+ <div class="clearfix" style="margin-bottom: 40px;"></div>
+ <form id="form1" method="post" action="/api/upload" enctype="multipart/form-data">
+    <div>
+        <input id="File1" type="file" name="myfile"/>
+        <input type="submit">submit</input>
+    </div>
+</form>
+
+</div>
+{% endblock %}

@@ -17,3 +17,5 @@ monty==1.0.4
 pymatgen==2018.9.12
 h5py==2.7.1
 pandas==0.22.0
+flask-cache==0.13.1
+ase==3.16.0

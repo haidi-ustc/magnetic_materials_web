@@ -1,23 +1,34 @@
 import os
-from flask import Flask
-#from flask.ext import restful
+from flask import render_template, make_response, request, Flask
 from flask_restful import Api
-#from flask.ext.pymongo import PyMongo
 from flask_pymongo import PyMongo
-from flask import make_response
 from bson.json_util import dumps
+from flask_cache import Cache
 
 MONGO_URL = os.environ.get('MONGO_URL')
 if not MONGO_URL:
     MONGO_URL = "mongodb://localhost:27017/restfulapi";
 
-app = Flask(__name__)
 
+UPLOAD_FOLDER='upload'
+CACHE_TYPE = 'simple'
+DATA_FOLDER = 'data'
+basedir = os.path.abspath(os.path.dirname(__file__))
+print(basedir)
+ALLOWED_EXTENSIONS = set(['json','yaml','vasp','cif','lammps'])
+
+
+app = Flask(__name__)
+cache = Cache(app,config={'CACHE_TYPE': CACHE_TYPE})
+cache.init_app(app)
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['DATA_FOLDER'] = DATA_FOLDER
 app.config['MONGO_URI'] = MONGO_URL
 mongo = PyMongo(app)
 #print(mongo)
 #print(dir(mongo))
-print(mongo.db.items.find_one())
+#print(mongo.db.items.find_one())
 #print(dir(mongo.db))
 
 def output_json(obj, code, headers=None):

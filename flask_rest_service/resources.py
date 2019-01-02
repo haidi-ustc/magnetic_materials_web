@@ -1,8 +1,20 @@
+#coding=utf-8
+import os
+import time
 import json
 import pprint
-from flask import render_template, make_response, request, abort, Flask
+import base64
+from flask import render_template, make_response, request, abort, Flask, jsonify, send_from_directory
 from flask_restful import Api, Resource, reqparse
-from flask_rest_service import app, api, mongo
+from flask_rest_service import app, api, mongo, cache, ALLOWED_EXTENSIONS, basedir
+from werkzeug.utils import secure_filename
+
+from io import StringIO
+#from werkzeug.contrib.cache import GAEMemcachedCache
+
+#from flask_cache import Cache
+#cache = Cache()
+
 from bson.objectid import ObjectId
 
 from pymatgen import MPRester,Composition,Structure
@@ -10,9 +22,16 @@ from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.analysis.phase_diagram import *
+
+from flask_rest_service.lammps import  set_lammps_data
+
 MAPI_KEY='QFrf8k3D4yalbmAK'
 
 mpr=MPRester(MAPI_KEY)
+#cache = GAEMemcachedCache()
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.',1)[1] in ALLOWED_EXTENSIONS
 
 def get_stability(comp,energy,mpara):
     compat=MaterialsProjectCompatibility()
@@ -46,7 +65,29 @@ def get_stability(comp,energy,mpara):
     #print(decomp)
     return pd.get_form_energy(my_en),mpr.get_stability([my_en])[0]
 
+def save_file(entry_id,fmt='vasp'):
+    #assert isinstance(struct,Structure)
+    file_dir=os.path.join(basedir,app.config['DATA_FOLDER'])
+    check_folder(file_dir)
+    file_name=os.path.join(file_dir,entry_id+'.'+fmt) 
+    if not os.path.isfile(file_name):
+       struct=get_structure(entry_id)
+       if fmt=='vasp':
+          struct.to('poscar',file_name)
+       elif fmt=='lammps':
+          set_lammps_data(file_name,struct,struct.symbol_set)
+       else:
+          struct.to(fmt,file_name)
 
+
+def get_structure(mm_id):
+    ret=mongo.db.data.find_one({'entry_id':mm_id},{'structure':1})
+    return Structure.from_dict(ret['structure'])
+
+def check_folder(dir):   
+    if not os.path.exists(dir):
+        os.makedirs(dir)
+     
 def html_formula(f):
     return re.sub(r"([\d.]+)", r"<sub>\1</sub>", f)
 
@@ -62,8 +103,11 @@ def calculate_stability(entry):
     for k in ("e_above_hull", "decomposes_to"):
         d["analysis"][k] = data[k]
 
-def find_entry(mm_id):
+def get_entry(mm_id):
     return mongo.db.data.find_one({'entry_id':mm_id})
+
+def get_entries(mm_ids):
+    return [get_entry(mm_id) for mm_id in mmids]
 
 def thumbnails_information():
     fmt="%.3f"
@@ -102,20 +146,144 @@ def thumbnails_information():
         #st.density
         #st.volume
 
+@app.route('/about')
+def about():
+    return make_response(render_template('about.html'))
+
 @app.route('/info/<mm_id>')
+@cache.cached(timeout=60*60*24,key_prefix='show_info')
 def show_info(mm_id):
-    entry=find_entry(mm_id) 
-    out=str(pprint.pformat(entry, indent=4))
+    fmt="%.3f"
+    lfmt="%12.8f"
+    material_details={}
+    space_group={}
+    lattice={}
+    structure={}
+    entry=get_entry(mm_id) 
+    st=Structure.from_dict(entry['structure'])
+    comp = st.composition
+    st_formula=html_formula(st.formula.replace(' ',''))
+    space_group=entry['data']['spacegroup']
+
+    mpara={'potcar_symbols': entry['parameters']['potcar_symbols']}
+    energy=entry['energy']/st.num_sites
+    ef,stability_info=get_stability(comp,energy,mpara)
+
+    material_details['mag_mom']=fmt%(entry['data']['magmoment'])
+    try:
+      material_details['order']=entry['data']['magorder']
+    except:
+      material_details['order']=None
+
+    material_details['MAE']=fmt%(entry['data']['MAE'])
+    try:
+       material_details['curie_T']=fmt%(entry['data']['curie_T'])
+    except:
+      material_details['curie_T']=None
+    
+    try:
+       material_details['bandgap']=fmt%(entry['data']['bandgap'])
+    except:
+       material_details['bandgap']=None
+
+    material_details['f_e']=fmt%(ef)
+    material_details['e_hull']=fmt%(stability_info['e_above_hull'])
+    material_details['density']=fmt%(st.density)
+    if stability_info['e_above_hull'] > 1e-3:
+       ret=stability_info
+       formula=[d['formula'] for d in ret['decomposes_to']]
+       material_details['decompose']=' + '.join([html_formula(i) for i in formula])
+    else:   
+       material_details['decompose']='stable'
+   
+    lattice['a']=lfmt%st.lattice.a 
+    lattice['b']=lfmt%st.lattice.b 
+    lattice['c']=lfmt%st.lattice.c
+    lattice['alpha']=fmt%st.lattice.alpha
+    lattice['beta']=fmt%st.lattice.beta
+    lattice['gamma']=fmt%st.lattice.gamma
+    lattice['volume']=st.volume
+
+
+    structure=[] 
+    for i,site in enumerate(st):
+        atom={}
+        atom['index']=i+1
+        atom['specie']=site.specie.value
+        atom['x']=lfmt%site.frac_coords[0]
+        atom['y']=lfmt%site.frac_coords[1]
+        atom['z']=lfmt%site.frac_coords[2]
+        structure.append(atom)
+
+    #out=str(pprint.pformat(entry, indent=4))
     #print(entry)
-    return out
+    #return out
+    return make_response(render_template('info.html',
+                            mm_id=mm_id,
+                            formula=st_formula,
+                            mat_detail=material_details,
+                            spg=space_group,
+                            lat=lattice,
+                            struct=structure
+               ))
+
+@app.route('/download',methods=['GET'])
+def download():
+    thumb_data=thumbnails_information()
+    ret=str(pprint.pformat(thumb_data, indent=4))
+    return ret
 
 @app.route('/',methods=['GET'])
+@cache.cached(timeout=60*60*24,key_prefix='index')
 def index():
     #author_info={"Author":"haidi"}
     thumb_data=thumbnails_information()
     
     return make_response(render_template('index.html',data=thumb_data))
 
-#api.add_resource(Root, '/')
-#api.add_resource(ReadingList, '/items/')
-#api.add_resource(Reading, '/items/<ObjectId:reading_id>')
+@app.route('/test/upload')
+def upload_test():
+    return render_template('upload.html')
+ 
+# upload file
+@app.route('/api/upload',methods=['POST'],strict_slashes=False)
+def api_upload():
+    file_dir=os.path.join(basedir,app.config['UPLOAD_FOLDER'])
+    check_folder(file_dir)
+    f=request.files['myfile']  # 从表单的file字段获取文件，myfile为该表单的name值
+    print(f)
+    if f and allowed_file(f.filename):  # 判断是否是允许上传的文件类型
+        fname=secure_filename(f.filename)
+        #print(fname)
+        ext = fname.rsplit('.',1)[1]  # 获取文件后缀
+        unix_time = int(time.time())
+        new_filename=str(unix_time)+'.'+ext  # 修改了上传的文件名
+        f.save(os.path.join(file_dir,new_filename))  #保存文件到upload目录
+        #token = base64.b64encode(new_filename)
+        #print(new_filename)
+ 
+        return jsonify({"errno":0,"errmsg":"success","token":new_filename})
+    else:
+        return jsonify({"errno":1001,"errmsg":"failed"})
+
+@app.route('/download/<mm_id>/<fmt>')
+def download_file(mm_id,fmt):
+    #print(mm_id)
+    #print(file_name)
+    file_name=mm_id+'.'+fmt
+    save_file(mm_id,fmt)  
+    file_dir=os.path.join(basedir,app.config['DATA_FOLDER'])
+    if os.path.isfile(os.path.join(file_dir,file_name)):
+       return send_from_directory(file_dir, file_name, as_attachment=True)
+    abort(404)
+
+@app.route("/downloads/<file_name>", methods=['GET','POST']) 
+def fdownload(file_name):
+    #if request.method=="GET" or "POST":
+    file_dir=os.path.join(basedir,app.config['UPLOAD_FOLDER'])
+    if os.path.isfile(os.path.join(file_dir,file_name)):
+       response = make_response(send_from_directory(file_dir, file_name, as_attachment=True))
+       response.headers["Content-Disposition"] = "attachment; filename={}".format(file_name.encode().decode('utf-8'))
+       return response
+    abort(404)
+

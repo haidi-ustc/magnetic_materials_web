@@ -1,0 +1,69 @@
+<html>
+ <head>
+ <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="Magnetic-Materials">
+        <meta name="author" content="Wang haidi">
+        <link rel="icon" href="{{ url_for('static', filename='images/mm.ico') }}">
+
+        <title>{% block title %}Novel Magnetic Materials{% endblock %}</title>
+
+        {% block css %}　<!--css模块区域-->
+        <!-- Bootstrap core CSS -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+        <!-- 可选的Bootstrap主题文件（一般不用引入） -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-theme.min.css') }}">
+        <!-- Custom styles for this template -->
+        <link href="{{ url_for('static', filename='css/offcanvas.css') }}" rel="stylesheet">
+        <link href="{{ url_for('static', filename='index.css') }}" rel="stylesheet">
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.13.1/bootstrap-table.min.css">
+
+<!--
+  <link rel="stylesheet" href='https://materials.org/static/stylesheets/less/compiled/nucleus.5db1710fde48.css' charset="utf-8">
+  <link rel="stylesheet" href='https://materials.org/static/stylesheets/less/compiled/app.dde63dd75350.css' charset="utf-8">
+  <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:300,400,700" rel="stylesheet">
+-->
+        {% endblock %}
+
+
+    </head>
+
+
+<body>
+
+
+       {% include "header.html" %}<!--引入网页的头部模板-->
+        <div class="container">
+            <div class="row row-offcanvas row-offcanvas-right">
+                {% block content %}<!--自定义模板区域-->
+
+                {% endblock %}
+
+                {% if sider %}
+                   {% include "common/sidebar.html" %}<!--引入网页的侧边模板-->
+                {% endif %}
+            </div><!--/row-->
+
+            {% include "footer.html" %}<!--引入网页的底部模板-->
+        </div>
+
+
+
+        {% block js %}<!--js模块区域-->
+        <!-- Bootstrap core JavaScript
+        ================================================== -->
+        <!-- Placed at the end of the document so the pages load faster -->
+        <script src="{{ url_for('static', filename='js/jquery-3.3.1.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/offcanvas.js') }}"></script>
+<!-- Latest compiled and minified JavaScript -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.13.1/bootstrap-table.min.js"></script>
+
+<!-- Latest compiled and minified Locales -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.13.1/locale/bootstrap-table-zh-CN.min.js"></script>
+        {% endblock %}
+
+</body>
+</html>

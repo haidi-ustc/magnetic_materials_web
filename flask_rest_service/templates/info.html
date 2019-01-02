@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+     <div class="clearfix" style="margin-bottom: 40px;"></div>
+     <div class="row">
+         <div class="col-md-6 col-sm-3">
+		<h4><span class="label label-primary">
+                material: 
+		</span></h4>
+		<h3 class="chemform">{{formula | safe }}</h3>
+         </div>
+         <div class="col-md-6 col-sm-3">
+		<h4><span class="label label-primary">
+		ID:
+		</span><h4>
+		<h3 >{{mm_id}}</h3>
+         </div>
+		
+     </div>
+  
+     <div class="row"> 
+         <div class="col-md-6 col-sm-3">
+              <h4><span class="label label-primary">
+              Materials Details:
+              </span></h4>
+              <table class="table table-bordered table-condensed">
+                 <tbody>
+                     <tr>
+                        <td>
+                          <h4>Magnetic moment </h4>
+                          <strong><span class="value"> {{ mat_detail.mag_mom }} mB</span></strong>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td>
+                          <h4> Magnetic ordering </h4>
+                          <strong><span class="value"> {{mat_detail.order}} </span></strong>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td>
+                          <h4> Magnetic Anisotropic Energy </h4>
+                          <strong><span class="value"> {{mat_detail.MAE}} eV</span></strong>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td>
+                          <h4> Curie Temperature </h4>
+                          <strong><span class="value"> {{mat_detail.curie_T}} K</span></strong>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td>
+                          <h4> Formation Energy </h4>
+                          <strong><span class="value"> {{mat_detail.f_e}} eV</span></strong>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td>
+                          <h4> Energy above Hull/Atom </h4>
+                          <strong><span class="value"> {{mat_detail.e_hull}} eV</span></strong>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td>
+                          <h4> Density </h4>
+                          <strong><span class="value"> {{mat_detail.density}} g/cm<sup>3<sup></span></strong>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td>
+          
+                          <h4> Decomposes To </h4>
+                          <strong><span class="value"> {{mat_detail.decompose |safe}}</span></strong>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td>
+                          <h4> Band Gap </h4>
+                          <strong><span class="value"> {{mat_detail.bandgap}} eV</span></strong>
+                        </td>
+                     </tr>
+                 </tbody>
+              </table>
+        
+         </div> <!-- span6-->
+         <div class="col-md-6 col-sm-3">
+              <h4><span class="label label-primary">
+               Space Group:
+              </span>
+              </h4>
+              <table class="table table-bordered table-condensed">
+                 <tbody>
+                     <tr>
+                        <td>
+                          <h4> Number </h4>
+                          <strong><span class="value"> {{spg.number}}</span></strong>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td>
+                          <h4> Hermann Mauguin </h4>
+                          <strong><span class="value"> {{spg.symbol}}</span></strong>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td>
+                          <h4> Hall </h4>
+                          <strong><span class="value"> {{spg.hall}}</span></strong>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td>
+                          <h4> Point Group </h4>
+                          <strong><span class="value">{{spg.point_group}}</span></strong>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td>
+                          <h4> Crystal System </h4>
+                          <strong><span class="value"> {{spg.crystal_system}}</span></strong>
+                        </td>
+                     </tr>
+                 </tbody>
+              </table>
+        
+         </div> <!-- span6-->
+     </div><!--/row-->
+     <div class="row"> 
+         <div class="col-md-12 col-sm-6">
+              <h4><span class="label label-primary">
+               Lattice Parameters:
+              </span>
+              </h4>
+              <table class="table table-bordered table-condensed">
+                 <thead>
+                     <tr>
+                        <td>
+                          <h4> a </h4>
+                        </td>
+                        <td>
+                          <h4> b </h4>
+                        </td>
+                        <td>
+                          <h4> c </h4>
+                        </td>
+                        <td>
+                          <h4> α </h4>
+                        </td>
+                        <td>
+                          <h4> β </h4>
+                        </td>
+                        <td>
+                          <h4> γ </h4>
+                        </td>
+                        <td>
+                          <h4> Volume </h4>
+                        </td>
+                     </tr>
+                 </thead>
+                 <tbody>
+                     <tr>
+                        <td>
+                          <h4> {{lat.a}} </h4>
+                        </td>
+                        <td>
+                          <h4> {{lat.b}} </h4>
+                        </td>
+                        <td>
+                          <h4> {{lat.c}} </h4>
+                        </td>
+                        <td>
+                          <h4> {{lat.alpha}} <sup>°<sup> </h4>
+                        </td>
+                        <td>
+                          <h4> {{lat.beta}}  <sup>°<sup></h4>
+                        </td>
+                        <td>
+                          <h4> {{lat.gamma}}  <sup>°<sup></h4>
+                        </td>
+                        <td>
+                          <h4> {{lat.volume}} Å<sup>3<sup> </h4>
+                        </td>
+                     </tr>
+                 </tbody>
+              </table>
+         </div> <!-- span6-->
+     </div><!--/row-->
+     <div class="row">
+         <div class="col-md-12 col-sm-6">
+              <h4><span class="label label-primary">
+               Fractional Coordinates:
+              </span>
+              </h4>
+         </div> <!-- span6-->
+     </div><!--/row-->
+     <div class="table-wrapper-scroll-y">
+     
+       <table class="table table-bordered table-striped">
+         <thead>
+           <tr>
+                <th class="col-md-3">index</th>
+                   <th class="col-md-3">Specie</th>
+                   <th class="col-md-2">x</th>
+                   <th class="col-md-2">y</th>
+                   <th class="col-md-2">z</th>
+           </tr>
+         </thead>
+         <tbody>
+            {% for atom in struct %}
+                <tr>
+                    <td>{{ atom.index+1 }}</td>
+                    <td>{{ atom.specie }}</td>
+                    <td>{{ atom.x }}</td>
+                    <td>{{ atom.y }}</td>
+                    <td>{{ atom.z }}</td>
+                </tr>
+            {% endfor %}
+         </tbody>
+       </table>
+     
+     </div>
+<!--
+     <div class="row" align="left">
+		<a href="/download/1546372995.cif" target="blank"><button class='btn btn-default'>Download!</button></a>
+       <select name="file_type" method="GET" action="/">
+           <option value="vasp" selected>vasp</option>
+           <option value="cif">cif</option>
+           <option value="lammps">lammps</option>
+           <option value="json">json</option>
+       </select>
+
+     </div>
+-->
+<div class="dropdown">
+  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    Download
+  </button>
+  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+    <a class="dropdown-item" href="/download/{{mm_id}}/vasp">vasp</a>
+    <a class="dropdown-item" href="/download/{{mm_id}}/cif">cif</a>
+    <a class="dropdown-item" href="/download/{{mm_id}}/lammps">lammps</a>
+    <a class="dropdown-item" href="/download/{{mm_id}}/json">json</a>
+    <a class="dropdown-item" href="/download/{{mm_id}}/yaml">yaml</a>
+  </div>
+</div>
+
+
+     <div class="row static-mode pull-down" id="electronic-structure"> 
+     </div><!--/row-->
+</div>
+{% endblock %}
