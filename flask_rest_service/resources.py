@@ -202,7 +202,7 @@ def show_info(mm_id):
     lattice['alpha']=fmt%st.lattice.alpha
     lattice['beta']=fmt%st.lattice.beta
     lattice['gamma']=fmt%st.lattice.gamma
-    lattice['volume']=st.volume
+    lattice['volume']=fmt%st.volume
 
 
     structure=[] 
