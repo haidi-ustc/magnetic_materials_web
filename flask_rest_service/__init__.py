@@ -6,7 +6,7 @@ from bson.json_util import dumps
 
 def mycopyfile(srcfile,dstfile):
     if not os.path.isfile(srcfile):
-        print "%s not exist!"%(srcfile)
+        print("%s not exist!"%(srcfile))
     else:
         fpath,fname=os.path.split(dstfile) 
         if not os.path.exists(fpath):
