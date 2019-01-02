@@ -15,7 +15,7 @@ distfile="/app/.heroku/python/lib/python3.6/site-packages/flask_cache/jinja2ext.
 #distfile="/home/vasp/.pyenv/versions/mpt_a3/lib/python3.6/site-packages/flask_cache/jinja2ext.py"
 print(srcfile)
 print(distfile)
-shutil.copyfile(srcfile,dstfile)    
+shutil.copyfile(srcfile,distfile)    
 from flask_cache import Cache
 
 MONGO_URL = os.environ.get('MONGO_URL')
