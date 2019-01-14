@@ -109,23 +109,31 @@ def get_entry(mm_id):
 def get_entries(mm_ids):
     return [get_entry(mm_id) for mm_id in mmids]
 
-def thumbnails_information():
+def thumbnails_information(max_entries=None,filter={}):
+
     fmt="%.3f"
     data=[]
-    for entry in mongo.db.data.find():
+    if max_entries is None:
+       entries= mongo.db.data.find(filter)
+    else:    
+       total_count = mongo.db.data.find({},{}).count()
+       number = min(max_entries, total_count)
+       entries=  mongo.db.data.find(filter)[0:number]
+
+    for entry in entries:
        # print(entry.keys())  
         thumb_dict={}
         st=Structure.from_dict(entry['structure'])
         comp = st.composition
         thumb_dict['mmid']=entry['entry_id']
         thumb_dict['formula']=html_formula(st.formula.replace(' ',''))
-        print(html_formula(st.formula.replace(' ','')))
+        #print(html_formula(st.formula.replace(' ','')))
         thumb_dict['spacegroup']=entry['data']['spacegroup']['symbol']
         mpara={'potcar_symbols': entry['parameters']['potcar_symbols']}
         energy=entry['energy']/st.num_sites
-        ef,stability_info=get_stability(comp,energy,mpara)
-        thumb_dict['formation_energy']=fmt%(ef)
-        thumb_dict['e_above_hull']=fmt%(stability_info['e_above_hull'])
+        #ef,stability_info=get_stability(comp,energy,mpara)
+        #thumb_dict['formation_energy']=fmt%(ef)
+        #thumb_dict['e_above_hull']=fmt%(stability_info['e_above_hull'])
         gap=entry['data']['bandgap']
         thumb_dict['bandgap']=fmt%(gap) if gap else gap 
         thumb_dict['volume']=fmt%(st.volume)
@@ -133,25 +141,60 @@ def thumbnails_information():
         thumb_dict['nsites']=st.num_sites
         data.append(thumb_dict)
     return data            
-        #el_amt = st.composition.get_el_amt_dict()
-        #d.update({"unit_cell_formula": comp.as_dict(),
-        #          "reduced_cell_formula": comp.to_reduced_dict,
-        #          "elements": list(el_amt.keys()),
-        #          "nelements": len(el_amt),
-        #          "pretty_formula": comp.reduced_formula,
-        #          "anonymous_formula": comp.anonymized_formula,
-        #          "nsites": comp.num_atoms,
-        #          "chemsys": "-".join(sorted(el_amt.keys()))})
-        #st.formula
-        #st.density
-        #st.volume
+
+@app.route('/query', methods=['GET'])
+def query():
+    message=None
+    in_string = request.args.get("in_string")
+    sel_type = request.args.get("select_type")
+    assert sel_type in ["formula",'groupid','element','materialid']
+    if sel_type=="formula":
+       try:
+          comp=Composition(in_string.strip())
+          filter={'composition':dict(comp.as_dict())}
+          #print(filter)
+          #entries= mongo.db.data.find_one(filter)
+          #print(entries)
+       except Exception as ex:
+          message = str(ex)
+       
+    elif sel_type=="element":
+       try:
+          elements=[Element(i) for i  in in_string.strip().split()]
+          filter={}
+          for element in elements:
+              filter["composition."+element.symbol]={'$gt':0}
+          #print(filter)
+          #entries= mongo.db.data.find_one(filter)
+          #print(entries)
+          #cond="{'composition.Fe':{'$gt':0},'composition.Co':{'$gt':0},'composition.N':{'$gt':0}})"
+       except Exception as ex:
+          message = str(ex)
+    elif sel_type=='groupid':
+       try:
+          groupid=int(in_string)
+          filter={'data.spacegroup.number':groupid}
+       except Exception as ex:
+          message = str(ex)
+    else:
+       try:
+          entry_id=in_string
+          filter={'entry_id':entry_id}
+       except Exception as ex:
+          message = str(ex)
+ 
+    if message is None:
+       thumb_data=thumbnails_information(filter=filter)
+    else:
+       thumb_data={}  
+
+    return make_response(render_template('index.html',message=message,data=thumb_data))
 
 @app.route('/about')
 def about():
     return make_response(render_template('about.html'))
 
 @app.route('/info/<mm_id>')
-@cache.cached(timeout=60*60*24,key_prefix='show_info')
 def show_info(mm_id):
     fmt="%.3f"
     lfmt="%12.8f"
@@ -167,7 +210,7 @@ def show_info(mm_id):
 
     mpara={'potcar_symbols': entry['parameters']['potcar_symbols']}
     energy=entry['energy']/st.num_sites
-    ef,stability_info=get_stability(comp,energy,mpara)
+    #ef,stability_info=get_stability(comp,energy,mpara)
 
     material_details['mag_mom']=fmt%(entry['data']['magmoment'])
     try:
@@ -186,15 +229,15 @@ def show_info(mm_id):
     except:
        material_details['bandgap']=None
 
-    material_details['f_e']=fmt%(ef)
-    material_details['e_hull']=fmt%(stability_info['e_above_hull'])
+    #material_details['f_e']=fmt%(ef)
+    #material_details['e_hull']=fmt%(stability_info['e_above_hull'])
     material_details['density']=fmt%(st.density)
-    if stability_info['e_above_hull'] > 1e-3:
-       ret=stability_info
-       formula=[d['formula'] for d in ret['decomposes_to']]
-       material_details['decompose']=' + '.join([html_formula(i) for i in formula])
-    else:   
-       material_details['decompose']='stable'
+    #if stability_info['e_above_hull'] > 1e-3:
+    #   ret=stability_info
+    #   formula=[d['formula'] for d in ret['decomposes_to']]
+    #   material_details['decompose']=' + '.join([html_formula(i) for i in formula])
+    #else:   
+    #   material_details['decompose']='stable'
    
     lattice['a']=lfmt%st.lattice.a 
     lattice['b']=lfmt%st.lattice.b 
@@ -202,7 +245,7 @@ def show_info(mm_id):
     lattice['alpha']=fmt%st.lattice.alpha
     lattice['beta']=fmt%st.lattice.beta
     lattice['gamma']=fmt%st.lattice.gamma
-    lattice['volume']=fmt%st.volume
+    lattice['volume']=st.volume
 
 
     structure=[] 
@@ -234,10 +277,10 @@ def download():
     return ret
 
 @app.route('/',methods=['GET'])
-@cache.cached(timeout=60*60*24,key_prefix='index')
+@cache.cached(timeout=300,key_prefix='index')
 def index():
     #author_info={"Author":"haidi"}
-    thumb_data=thumbnails_information()
+    thumb_data=thumbnails_information(max_entries=20)
     
     return make_response(render_template('index.html',data=thumb_data))
 

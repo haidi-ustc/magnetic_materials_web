@@ -220,30 +220,18 @@
        </table>
      
      </div>
-<!--
-     <div class="row" align="left">
-		<a href="/download/1546372995.cif" target="blank"><button class='btn btn-default'>Download!</button></a>
-       <select name="file_type" method="GET" action="/">
-           <option value="vasp" selected>vasp</option>
-           <option value="cif">cif</option>
-           <option value="lammps">lammps</option>
-           <option value="json">json</option>
-       </select>
-
+     <div class="dropdown">
+       <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+         Download
+       </button>
+       <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+         <a class="dropdown-item" href="/download/{{mm_id}}/vasp">vasp</a>
+         <a class="dropdown-item" href="/download/{{mm_id}}/cif">cif</a>
+         <a class="dropdown-item" href="/download/{{mm_id}}/lammps">lammps</a>
+         <a class="dropdown-item" href="/download/{{mm_id}}/json">json</a>
+         <a class="dropdown-item" href="/download/{{mm_id}}/yaml">yaml</a>
+       </div>
      </div>
--->
-<div class="dropdown">
-  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-    Download
-  </button>
-  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-    <a class="dropdown-item" href="/download/{{mm_id}}/vasp">vasp</a>
-    <a class="dropdown-item" href="/download/{{mm_id}}/cif">cif</a>
-    <a class="dropdown-item" href="/download/{{mm_id}}/lammps">lammps</a>
-    <a class="dropdown-item" href="/download/{{mm_id}}/json">json</a>
-    <a class="dropdown-item" href="/download/{{mm_id}}/yaml">yaml</a>
-  </div>
-</div>
 
 
      <div class="row static-mode pull-down" id="electronic-structure"> 
