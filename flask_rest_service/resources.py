@@ -6,7 +6,7 @@ import pprint
 import base64
 from flask import render_template, make_response, request, abort, Flask, jsonify, send_from_directory
 from flask_restful import Api, Resource, reqparse
-from flask_rest_service import app, api, mongo, cache, ALLOWED_EXTENSIONS, basedir
+from flask_rest_service import app, api, mongo, cache, ALLOWED_EXTENSIONS, basedir, MAPI_KEY
 from werkzeug.utils import secure_filename
 
 from io import StringIO
@@ -25,7 +25,6 @@ from pymatgen.analysis.phase_diagram import *
 
 from flask_rest_service.lammps import  set_lammps_data
 
-MAPI_KEY='QFrf8k3D4yalbmAK'
 
 mpr=MPRester(MAPI_KEY)
 #cache = GAEMemcachedCache()

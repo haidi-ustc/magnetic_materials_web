@@ -19,6 +19,7 @@ shutil.copyfile(srcfile,distfile)
 from flask_cache import Cache
 
 MONGO_URL = os.environ.get('MONGO_URL')
+MAPI_KEY = os.environ.get('MAPI_KEY')  # obtained from materials project
 if not MONGO_URL:
     MONGO_URL = "mongodb://localhost:27017/restfulapi";
 
